@@ -1,5 +1,4 @@
 #!/bin/bash
-## para servidores basados en .rpm corriendo en una maquina virtual
 
 read -s -p "Ingresa tu password, NO se mostrará el password: " passs
 
@@ -18,8 +17,9 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 chmod +x kubectl
 echo "$passs" | sudo -S mv kubectl /usr/local/bin/
 
-echo "$passs" | sudo -S usermod -aG docker $USER && newgrp docker
-minikube start --driver=docker --force
+echo "$passs" | sudo -S usermod -aG docker $USER
+newgrp docker << ENOG
+minikube start --driver=docker
 
 #crear un namespace
 kubectl create namespace yape-personas
@@ -49,12 +49,13 @@ EOF
 #ejecutar el yml para las replicas
 kubectl apply -f replicas-minikube.yml
 
-unset $passs
-unset passs
-
 #Levantando pods
 echo "Esperar un minuto para mostrar los pods creados"
 sleep 1m
 
 kubectl get pods -n yape-personas
+kubectl get pod -A
+ENOG
 
+unset $passs
+unset passs
